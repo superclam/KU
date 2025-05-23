@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录界面</title>    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        #loginContainer {
+            display: block;
+            text-align: center;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        input {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        
+        button {
+            padding: 8px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #mainContainer {
+            display: none;
+            text-align: center;
+        }        #username-display {
+            margin: 20px 0 40px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .upload-container {
+            border: 2px dashed #4CAF50;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #f8f8f8;
+        }
+
+        .upload-container:hover, .upload-container.dragover {
+            background-color: #e8f5e9;
+            border-color: #2e7d32;
+        }
+
+        .upload-container p {
+            margin: 0;
+            font-size: 16px;
+            color: #666;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+
+        #fileList {
+            margin-top: 20px;
+            text-align: left;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            background-color: white;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .file-item:hover {
+            background-color: #f5f5f5;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        }
+
+        .file-item input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+        .file-name {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+
+        .file-size {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .manage-mode .file-item {
+            cursor: default;
+        }
+
+        .manage-buttons {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .manage-buttons.active {
+            display: block;
+        }
+
+        .manage-btn {
+            padding: 8px 16px;
+            margin-right: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .manage-btn:hover {
+            background-color: #45a049;
+        }
+
+        .delete-btn {
+            background-color: #ff4444;
+        }
+
+        .delete-btn:hover {
+            background-color: #cc0000;
+        }
+
+        .file-preview {
+            width: 100%;
+            max-height: 80vh;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .file-preview.active {
+            display: block;
+        }.settings-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 8px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        .settings-btn:hover {
+            background-color: #45a049;
+        }        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100vh;
+            background-color: white;
+            padding: 20px;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 999;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .settings-panel.active {
+            display: block;
+            transform: translateX(0);
+        }        .settings-panel h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 20px;
+            color: #333;
+        }
+
+        .settings-content {
+            margin-top: 20px;
+        }
+
+        .settings-btn-group {
+            margin-top: 15px;
+        }
+
+        .delete-btn {
+            background-color: #ff4444;
+            margin-top: 10px;
+        }
+
+        .delete-btn:hover {
+            background-color: #cc0000;
+        }
+
+        .settings-input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .settings-input.active {
+            display: block;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            display: none;
+            z-index: 998;
+        }
+
+        .overlay.active {
+            display: block;
+        }        .github-auth {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1002;
+        }
+        
+        .github-auth.active {
+            display: flex;
+        }
+        
+        .github-auth-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .github-auth-content h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        
+        .upload-actions {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .upload-btn {
+            background-color: #2196F3;
+            margin: 10px;
+        }
+        
+        .upload-btn:hover {
+            background-color: #1976D2;
+        }
+
+        .github-file-list {
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            display: none;
+        }
+
+        .github-file-list.active {
+            display: block;
+        }
+
+        .github-file-item {
+            padding: 8px;
+            margin-bottom: 5px;
+            background-color: white;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .github-file-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .github-file-name {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+
+        #uploadContainer {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #uploadContainer.dragover {
+            border-color: #4CAF50;
+            background-color: rgba(76, 175, 80, 0.1);
+        }
+
+        #uploadContainer:hover {
+            border-color: #999;
+        }
+
+        .upload-text {
+            color: #666;
+            margin: 10px 0;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 4px;
+            z-index: 1001;
+            display: none;
+        }
+
+        .message.success {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .message.error {
+            background-color: #ff4444;
+            color: white;
+        }
+    </style>
+</head>
+<body>    <div id="loginContainer">
+        <div class="input-group">
+            <input type="text" id="usernameInput" placeholder="请输入用户名">
+            <button onclick="login()">确认</button>
+        </div>    </div>    <div id="mainContainer">
+        <div id="username-display"></div>        <div class="upload-container" id="uploadContainer" onclick="triggerFileSelect()">
+            <div class="upload-icon">📁</div>
+            <p>点击或拖拽文件到此处上传</p>
+            <input type="file" id="fileInput" style="display: none;" multiple>
+        </div>        <div class="upload-actions">
+            <button class="upload-btn" onclick="uploadToGithub()">上传</button>
+        </div>
+        <div id="fileList"></div>
+        <div class="manage-buttons" id="manageButtons">
+            <button onclick="deleteSelectedFiles()" class="delete-btn">确认删除</button>
+            <button class="manage-btn cancel" onclick="toggleManageMode()">取消</button>
+        </div>
+    </div>    <!-- 设置按钮和面板 -->
+    <button class="settings-btn" id="settingsBtn">设置</button>
+    <div class="overlay" id="overlay"></div>    <div class="settings-panel" id="settingsPanel">
+        <h3>设置</h3>
+        <div class="settings-content">            
+            <div class="settings-btn-group">
+                <button onclick="showChangeUsername()">修改用户名</button>
+            </div>
+            <input type="text" id="newUsernameInput" class="settings-input" placeholder="输入新的用户名">            <div class="settings-btn-group" id="confirmBtnGroup" style="display: none;">
+                <button onclick="confirmChangeUsername()">确定</button>
+                <button onclick="cancelChangeUsername()">取消</button>
+            </div>
+            <div class="settings-btn-group">
+                <button onclick="showAllFiles()">所有文件</button>
+            </div>
+            <div class="settings-btn-group">
+                <button onclick="showUserFiles()">已添加的文件</button>
+            </div>
+            <div id="githubFileList" class="github-file-list"></div>
+            <div id="userFileList" class="github-file-list"></div>
+        </div>
+    </div><!-- Github认证对话框 -->
+    <div class="github-auth" id="githubAuthDialog">
+        <div class="github-auth-content">
+            <h3>GitHub 认证</h3>
+            <p>首次上传需要输入 GitHub Token</p>
+            <input type="password" id="githubToken" placeholder="输入 GitHub Token">
+            <div class="settings-btn-group">
+                <button onclick="confirmGithubAuth()">确认</button>
+                <button onclick="cancelGithubAuth()">取消</button>
+            </div>
+        </div>
+    </div>    <script>        // 全局状态管理
+        const state = {
+            github: {
+                api: 'https://api.github.com',
+                owner: 'superclam',
+                repo: 'KU',
+                folder: '仓库',
+                token: ''  // 初始为空，等待用户输入或从localStorage获取
+            },
+            files: {
+                local: [],     // 本地待上传的文件
+                remote: [],    // GitHub仓库中的所有文件
+                userFiles: [], // 当前用户上传的文件
+                isManageMode: false
+            }
+        };
+
+        // 检查localStorage中是否有保存的token
+        const savedToken = localStorage.getItem('github_token');
+        if (savedToken) {
+            state.github.token = savedToken;
+        }        // 检查是否已经有保存的用户名
+        window.onload = async function() {
+            const savedUsername = localStorage.getItem('username');
+            if (savedUsername) {
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('mainContainer').style.display = 'block';
+                document.getElementById('username-display').textContent = '欢迎，' + savedUsername;
+                
+                // 初始化时获取远程文件列表
+                const savedToken = localStorage.getItem('github_token');
+                if (savedToken) {
+                    state.github.token = savedToken;
+                    await updateFileListsAfterUpload(); // 获取远程文件列表
+                }
+            }
+        };
+
+        function login() {
+            const username = document.getElementById('usernameInput').value;
+            if (username.trim() !== "") {
+                localStorage.setItem('username', username);
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('mainContainer').style.display = 'block';
+                document.getElementById('username-display').textContent = '欢迎，' + username;
+            } else {
+                alert('请输入用户名');
+            }
+        }
+
+        // 支持按回车键确认
+        document.getElementById('usernameInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+
+        // 设置按钮相关功能
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsPanel = document.getElementById('settingsPanel');
+        const overlay = document.getElementById('overlay');
+
+        function toggleSettings() {
+            settingsPanel.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        settingsBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleSettings();
+        });
+
+        document.addEventListener('click', function(e) {
+            if (settingsPanel.classList.contains('active') &&
+                !settingsPanel.contains(e.target) &&
+                e.target !== settingsBtn) {
+                toggleSettings();
+            }
+        });        // 阻止设置面板的点击事件冒泡
+        settingsPanel.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });        // 修改用户名相关功能
+        function showChangeUsername() {
+            document.getElementById('newUsernameInput').value = '';
+            document.getElementById('newUsernameInput').classList.add('active');
+            document.getElementById('confirmBtnGroup').style.display = 'block';
+            
+            // 给新用户名输入框添加回车事件监听
+            document.getElementById('newUsernameInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    confirmChangeUsername();
+                }
+            });
+        }
+
+        function confirmChangeUsername() {
+            const oldUsername = localStorage.getItem('username');
+            const newUsername = document.getElementById('newUsernameInput').value;
+            if (newUsername.trim() !== "") {
+                // 更新用户文件关联
+                const oldUserPrefix = `${oldUsername}_`;
+                const newUserPrefix = `${newUsername}_`;
+                
+                // 更新远程文件列表中的文件名
+                if (state.files.remote) {
+                    state.files.remote = state.files.remote.map(file => {
+                        if (file.name.startsWith(oldUserPrefix)) {
+                            return {
+                                ...file,
+                                name: newUserPrefix + file.name.substring(oldUserPrefix.length)
+                            };
+                        }
+                        return file;
+                    });
+                }
+                
+                // 更新用户文件列表
+                if (state.files.userFiles) {
+                    state.files.userFiles = state.files.userFiles.map(file => {
+                        if (file.name.startsWith(oldUserPrefix)) {
+                            return {
+                                ...file,
+                                name: newUserPrefix + file.name.substring(oldUserPrefix.length)
+                            };
+                        }
+                        return file;
+                    });
+                }
+
+                // 更新用户名和UI
+                localStorage.setItem('username', newUsername);
+                document.getElementById('username-display').textContent = '欢迎，' + newUsername;
+                
+                // 更新文件列表显示
+                updateGithubFileList();
+                updateUserFileList();
+                
+                cancelChangeUsername();
+                toggleSettings();
+            } else {
+                alert('请输入新的用户名');
+            }
+        }        function cancelChangeUsername() {
+            document.getElementById('newUsernameInput').classList.remove('active');
+            document.getElementById('confirmBtnGroup').style.display = 'none';
+        }        // 文件管理相关功能
+        let isManageMode = false; // 移到这里，确保在使用前定义
+
+        function showFileManager() {
+            isManageMode = !isManageMode;
+            const manageButtons = document.getElementById('manageButtons');
+            const fileListContainer = document.getElementById('fileList');
+            const checkboxes = document.querySelectorAll('.file-item input[type="checkbox"]');
+            
+            if (isManageMode) {
+                fileListContainer.classList.add('manage-mode');
+                manageButtons.classList.add('active');
+                checkboxes.forEach(cb => cb.style.display = 'block');
+            } else {
+                fileListContainer.classList.remove('manage-mode');
+                manageButtons.classList.remove('active');
+                checkboxes.forEach(cb => {
+                    cb.style.display = 'none';
+                    cb.checked = false;
+                });
+            }
+        }function deleteSelectedFiles() {
+            const checkboxes = document.querySelectorAll('.file-item input[type="checkbox"]:checked');
+            const indicesToDelete = Array.from(checkboxes)
+                .map(checkbox => parseInt(checkbox.closest('.file-item').getAttribute('data-index')))
+                .sort((a, b) => b - a); // 从大到小排序，这样删除时不会影响其他索引
+
+            if (indicesToDelete.length === 0) {
+                alert('请选择要删除的文件');
+                return;
+            }
+
+            if (confirm(`确定要删除选中的 ${indicesToDelete.length} 个文件吗？`)) {
+                // 从数组中删除文件
+                indicesToDelete.forEach(index => {
+                    state.files.local.splice(index, 1);
+                });
+
+                // 更新主界面的文件列表
+                updateMainFileList();
+                // 退出管理模式
+                toggleManageMode();
+            }
+        }
+
+        function updateMainFileList() {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            
+            state.files.local.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.setAttribute('data-index', index);
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.style.display = state.files.isManageMode ? 'block' : 'none';
+                
+                const fileName = document.createElement('div');
+                fileName.className = 'file-name';
+                fileName.textContent = file.name;
+                
+                const fileSize = document.createElement('div');
+                fileSize.className = 'file-size';
+                fileSize.textContent = formatFileSize(file.size);
+                
+                fileItem.appendChild(checkbox);
+                fileItem.appendChild(fileName);
+                fileItem.appendChild(fileSize);
+                
+                // 分别为 checkbox 和文件项添加事件监听
+                checkbox.addEventListener('click', (e) => {
+                    e.stopPropagation(); // 防止触发文件项的点击事件
+                });
+                
+                fileItem.addEventListener('click', (e) => {
+                    if (state.files.isManageMode) {
+                        if (e.target !== checkbox) {
+                            checkbox.checked = !checkbox.checked; // 点击文件项时切换复选框状态
+                        }
+                    } else {
+                        if (e.target !== checkbox) {
+                            openFile(index);
+                        }
+                    }
+                });
+                
+                fileList.appendChild(fileItem);
+            });
+
+            // 如果是管理模式，确保按钮可见
+            const manageButtons = document.getElementById('manageButtons');
+            if (state.files.isManageMode) {
+                manageButtons.classList.add('active');
+            }
+        }
+
+        function openFile(index) {
+            const file = state.files.local[index];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                window.open(url, '_blank');
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+            }
+        }
+
+        // 文件上传和处理相关功能
+        const uploadContainer = document.getElementById('uploadContainer');
+        const fileInput = document.getElementById('fileInput');
+
+        function triggerFileSelect() {
+            document.getElementById('fileInput').click();
+        }
+
+        // 拖拽相关的事件处理
+        uploadContainer.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadContainer.classList.add('dragover');
+        });
+
+        uploadContainer.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadContainer.classList.remove('dragover');
+        });
+
+        uploadContainer.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadContainer.classList.remove('dragover');
+            handleFiles({ target: { files: e.dataTransfer.files } });
+        });
+
+        // 文件选择处理
+        fileInput.addEventListener('change', handleFiles);
+
+        async function handleFiles(e) {
+            const files = e.target.files;
+            if (!files || files.length === 0) return;
+            
+            state.files.local = [...state.files.local, ...Array.from(files)];
+            updateMainFileList();
+        }
+
+        function updateMainFileList() {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            
+            state.files.local.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.setAttribute('data-index', index);
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.style.display = state.files.isManageMode ? 'block' : 'none';
+                
+                const fileName = document.createElement('div');
+                fileName.className = 'file-name';
+                fileName.textContent = file.name;
+                
+                const fileSize = document.createElement('div');
+                fileSize.className = 'file-size';
+                fileSize.textContent = formatFileSize(file.size);
+                
+                fileItem.appendChild(checkbox);
+                fileItem.appendChild(fileName);
+                fileItem.appendChild(fileSize);
+                
+                checkbox.addEventListener('click', (e) => e.stopPropagation());
+                
+                fileItem.addEventListener('click', (e) => {
+                    if (state.files.isManageMode) {
+                        if (e.target !== checkbox) {
+                            checkbox.checked = !checkbox.checked;
+                        }
+                    } else {
+                        if (e.target !== checkbox) {
+                            openFile(index);
+                        }
+                    }
+                });
+                
+                fileList.appendChild(fileItem);
+            });
+            
+            const manageButtons = document.getElementById('manageButtons');
+            if (state.files.isManageMode) {
+                manageButtons.classList.add('active');
+            }
+        }
+
+        function openFile(index) {
+            const file = state.files.local[index];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                window.open(url, '_blank');
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+            }
+        }
+
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.getElementById('message') || createMessageDiv();
+            messageDiv.textContent = message;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        function createMessageDiv() {
+            const div = document.createElement('div');
+            div.id = 'message';
+            document.body.appendChild(div);
+            return div;
+        }
+
+        // 移除旧的 filesArray 变量
+        function handleFiles(e) {
+            const files = e.target.files;
+            if (!files || files.length === 0) return;
+            
+            const startIndex = state.files.local.length;
+            state.files.local = [...state.files.local, ...Array.from(files)];
+            
+            // 更新显示的文件列表
+            updateMainFileList();
+        }        function openFileInNewTab(url) {
+            const win = window.open();
+            if (win) {
+                win.document.write('<iframe src="' + url + '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>');
+            } else {
+                alert('请允许打开弹窗以查看文件');
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function toggleManageMode() {
+            isManageMode = !isManageMode;
+            const manageButtons = document.getElementById('manageButtons');
+            const fileListContainer = document.getElementById('fileList');
+            const checkboxes = document.querySelectorAll('.file-item input[type="checkbox"]');
+            
+            if (isManageMode) {
+                fileListContainer.classList.add('manage-mode');
+                manageButtons.classList.add('active');
+                checkboxes.forEach(cb => cb.style.display = 'block');
+            } else {
+                fileListContainer.classList.remove('manage-mode');
+                manageButtons.classList.remove('active');
+                checkboxes.forEach(cb => {
+                    cb.style.display = 'none';
+                    cb.checked = false;
+                });
+            }
+        }        // 使用state中的GitHub配置
+
+        async function uploadToGithub() {
+            if (!state.files.local.length) {
+                alert('请先选择要上传的文件');
+                return;
+            }
+
+            if (!state.github.token) {
+                document.getElementById('githubAuthDialog').classList.add('active');
+                return;
+            }
+
+            try {
+                const username = localStorage.getItem('username');
+                if (!username) {
+                    throw new Error('未找到用户名');
+                }
+
+                for (const file of state.files.local) {
+                    const content = await readFileAsBase64(file);
+                    const fileNameWithPrefix = `${username}_${file.name}`;
+                    
+                    const checkResponse = await fetch(`${state.github.api}/repos/${state.github.owner}/${state.github.repo}/contents/${state.github.folder}/${fileNameWithPrefix}`, {
+                        headers: {
+                            'Authorization': `token ${state.github.token}`
+                        }
+                    });
+
+                    let requestBody = {
+                        message: `上传文件: ${fileNameWithPrefix}`,
+                        content: content
+                    };
+
+                    if (checkResponse.ok) {
+                        const fileInfo = await checkResponse.json();
+                        requestBody.sha = fileInfo.sha;
+                    }
+
+                    const response = await fetch(`${state.github.api}/repos/${state.github.owner}/${state.github.repo}/contents/${state.github.folder}/${fileNameWithPrefix}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${state.github.token}`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(`上传失败: ${errorData.message || response.statusText}`);
+                    }                    const fileInfo = await response.json();
+                    // 更新文件列表
+                    updateRemoteFileList(fileInfo.content);
+                }
+
+                // 更新所有文件和用户文件的显示
+                await updateFileListsAfterUpload();
+                
+                // 清空本地文件列表
+                state.files.local = [];
+                updateMainFileList();
+                
+                showMessage('文件上传成功！', 'success');
+            } catch (error) {
+                console.error('上传错误:', error);
+                showMessage(`上传失败: ${error.message}`, 'error');
+            }
+        }
+
+        function readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const base64 = reader.result.split(',')[1];
+                    resolve(base64);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }        function updateRemoteFileList(fileInfo) {
+            // 更新远程文件列表
+            const existingIndex = state.files.remote.findIndex(f => f.name === fileInfo.name);
+            if (existingIndex >= 0) {
+                state.files.remote[existingIndex] = fileInfo;
+            } else {
+                state.files.remote.push(fileInfo);
+            }
+
+            // 如果是当前用户的文件，也更新用户文件列表
+            const username = localStorage.getItem('username');
+            if (fileInfo.name.startsWith(`${username}_`)) {
+                const existingUserFileIndex = state.files.userFiles.findIndex(f => f.name === fileInfo.name);
+                if (existingUserFileIndex >= 0) {
+                    state.files.userFiles[existingUserFileIndex] = fileInfo;
+                } else {
+                    state.files.userFiles.push(fileInfo);
+                }
+            }
+        }
+
+        async function updateFileListsAfterUpload() {
+            // 刷新远程文件列表
+            const response = await fetch(`${state.github.api}/repos/${state.github.owner}/${state.github.repo}/contents/${state.github.folder}`, {
+                headers: {
+                    'Authorization': `token ${state.github.token}`
+                }
+            });
+
+            if (response.ok) {
+                const files = await response.json();
+                state.files.remote = files;
+
+                // 更新用户文件列表
+                const username = localStorage.getItem('username');
+                state.files.userFiles = files.filter(file => file.name.startsWith(`${username}_`));
+
+                // 更新界面显示
+                updateGithubFileList();
+                updateUserFileList();
+            }
+        }
+
+        function updateFileListDisplay() {
+            if (document.getElementById('githubFileList').classList.contains('active')) {
+                updateGithubFileList();
+            }
+            if (document.getElementById('userFileList').classList.contains('active')) {
+                updateUserFileList();
+            }
+        }
+
+        // GitHub 认证相关功能
+        function confirmGithubAuth() {
+            const token = document.getElementById('githubToken').value.trim();
+            if (!token) {
+                showMessage('请输入 GitHub Token', 'error');
+                return;
+            }
+
+            state.github.token = token;
+            localStorage.setItem('github_token', token);
+            document.getElementById('githubAuthDialog').classList.remove('active');
+            uploadToGithub();
+        }
+
+        function cancelGithubAuth() {
+            document.getElementById('githubAuthDialog').classList.remove('active');
+        }        // 文件列表显示相关功能
+        async function showAllFiles() {
+            const fileList = document.getElementById('githubFileList');
+            const userFileList = document.getElementById('userFileList');
+            
+            // 切换显示状态
+            if (fileList.classList.contains('active')) {
+                fileList.classList.remove('active');
+            } else {
+                fileList.classList.add('active');
+                userFileList.classList.remove('active');
+                
+                if (!state.files.remote.length && state.github.token) {
+                    // 如果没有文件列表且有token，尝试获取
+                    try {
+                        await updateFileListsAfterUpload();
+                    } catch (error) {
+                        console.error('获取文件列表失败:', error);
+                        showMessage('获取文件列表失败：' + error.message, 'error');
+                    }
+                }
+                // 无论是否成功获取到新数据，都更新显示
+                updateGithubFileList();
+            }
+        }        async function showUserFiles() {
+            const fileList = document.getElementById('githubFileList');
+            const userFileList = document.getElementById('userFileList');
+            
+            // 切换显示状态
+            if (userFileList.classList.contains('active')) {
+                userFileList.classList.remove('active');
+            } else {
+                userFileList.classList.add('active');
+                fileList.classList.remove('active');
+                
+                if (!state.files.userFiles.length && state.github.token) {
+                    // 如果没有文件列表且有token，尝试获取
+                    try {
+                        await updateFileListsAfterUpload();
+                    } catch (error) {
+                        console.error('获取用户文件列表失败:', error);
+                        showMessage('获取用户文件列表失败：' + error.message, 'error');
+                    }
+                }
+                // 无论是否成功获取到新数据，都更新显示
+                updateUserFileList();
+            }
+        }
+
+        function updateGithubFileList() {
+            const fileList = document.getElementById('githubFileList');
+            fileList.innerHTML = '';
+
+            if (!state.files.remote || state.files.remote.length === 0) {
+                fileList.innerHTML = '<div class="github-file-item">暂无文件</div>';
+                return;
+            }
+
+            state.files.remote.forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'github-file-item';
+                
+                const fileName = document.createElement('div');
+                fileName.className = 'github-file-name';
+                // 去掉用户名前缀后显示文件名
+                const displayName = file.name.includes('_') ? file.name.split('_').slice(1).join('_') : file.name;
+                fileName.textContent = displayName;
+                
+                fileItem.appendChild(fileName);
+                fileList.appendChild(fileItem);
+                
+                // 添加点击查看功能
+                fileItem.addEventListener('click', () => {
+                    window.open(file.download_url, '_blank');
+                });
+            });
+        }
+
+        function updateUserFileList() {
+            const userFileList = document.getElementById('userFileList');
+            userFileList.innerHTML = '';
+
+            if (!state.files.userFiles || state.files.userFiles.length === 0) {
+                userFileList.innerHTML = '<div class="github-file-item">暂无文件</div>';
+                return;
+            }
+
+            state.files.userFiles.forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'github-file-item';
+                
+                const displayName = file.name.split('_').slice(1).join('_');
+                
+                const fileName = document.createElement('div');
+                fileName.className = 'github-file-name';
+                fileName.textContent = displayName;
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.textContent = '删除';
+                deleteBtn.onclick = async (e) => {
+                    e.stopPropagation();
+                    if (confirm(`确定要删除文件 ${displayName} 吗？`)) {
+                        await deleteFileFromGithub(file.name);
+                    }
+                };
+                
+                fileItem.appendChild(fileName);
+                fileItem.appendChild(deleteBtn);
+                userFileList.appendChild(fileItem);
+                
+                // 添加点击查看功能
+                fileName.addEventListener('click', () => {
+                    window.open(file.download_url, '_blank');
+                });
+            });
+        }
+    </script>
+</body>
+</html>
